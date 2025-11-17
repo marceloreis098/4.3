@@ -9,7 +9,6 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 const crypto = require('crypto');
-const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 
@@ -324,6 +323,7 @@ app.post('/api/ai/generate-report', async (req, res) => {
     logAction(username, 'AI_REPORT', 'EQUIPMENT', null, `Generated AI report with query: "${query}"`);
 
     try {
+        const { GoogleGenAI } = require('@google/genai');
         const apiKey = process.env.API_KEY;
         if (!apiKey) {
             throw new Error("A chave de API do Gemini não está configurada no ambiente do servidor.");
