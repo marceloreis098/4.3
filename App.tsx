@@ -12,6 +12,7 @@ import TwoFactorAuth from './components/TwoFactorAuth';
 import TwoFactorSetup from './components/TwoFactorSetup'; // Novo componente
 import { Page, User, UserRole } from './types';
 import { getSettings } from './services/apiService';
+import AIAssistantWidget from './components/AIAssistantWidget';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -180,8 +181,7 @@ const App: React.FC = () => {
           {renderPage()}
         </main>
       </div>
-      {/* AIAssistantWidget removido conforme solicitado pelo usuário */}
-      {/* <AIAssistantWidget currentUser={currentUser} /> */}
+      <AIAssistantWidget currentUser={currentUser} />
     </div>
   );
 };

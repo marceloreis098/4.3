@@ -4,7 +4,6 @@ import { getEquipment } from '../services/apiService';
 import { Equipment, User } from '../types';
 import Icon from './common/Icon';
 
-// FIX: Correctly destructure `currentUser` from props to ensure it is available in the component.
 const AIAssistantWidget: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
@@ -17,7 +16,7 @@ const AIAssistantWidget: React.FC<{ currentUser: User }> = ({ currentUser }) => 
 
     useEffect(() => {
         const loadInventory = async () => {
-            if (!isOpen) return;
+            if (!isOpen) return; // Only load data when widget is opened
             setIsDataLoading(true);
             try {
                 const data = await getEquipment(currentUser);
@@ -33,25 +32,35 @@ const AIAssistantWidget: React.FC<{ currentUser: User }> = ({ currentUser }) => 
     }, [currentUser, isOpen]);
 
     useEffect(() => {
+        // Close widget if clicked outside
         const handleClickOutside = (event: MouseEvent) => {
             if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
+
 
     const handleGenerateReport = async () => {
         if (!query.trim()) return;
+
         setIsLoading(true);
         setError('');
         setReport(null);
         try {
             const result = await generateReportWithGemini(query, inventoryData);
-            if (result.error) setError(result.error);
-            else if (result.reportData) setReport(result.reportData);
-            else setError('A resposta da IA não continha dados de relatório válidos.');
+
+            if (result.error) {
+                setError(result.error);
+            } else if (result.reportData) {
+                setReport(result.reportData);
+            } else {
+                setError('A resposta da IA não continha dados de relatório válidos.');
+            }
         } catch (e) {
             console.error(e);
             setError('Falha ao processar a resposta da IA.');
@@ -59,7 +68,7 @@ const AIAssistantWidget: React.FC<{ currentUser: User }> = ({ currentUser }) => 
             setIsLoading(false);
         }
     };
-
+    
     if (!isOpen) {
         return (
             <button
@@ -71,6 +80,7 @@ const AIAssistantWidget: React.FC<{ currentUser: User }> = ({ currentUser }) => 
             </button>
         );
     }
+
 
     return (
         <div ref={widgetRef} className="fixed bottom-6 right-6 w-full max-w-lg h-[70vh] bg-white dark:bg-dark-card rounded-xl shadow-2xl flex flex-col z-50 animate-fade-in-up">
