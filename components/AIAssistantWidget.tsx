@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { generateReportWithGemini } from '../services/geminiService';
-import { getEquipment } from '../services/apiService';
+import { getEquipment, generateAiReport } from '../services/apiService';
 import { Equipment, User } from '../types';
 import Icon from './common/Icon';
 
@@ -52,18 +51,18 @@ const AIAssistantWidget: React.FC<{ currentUser: User }> = ({ currentUser }) => 
         setError('');
         setReport(null);
         try {
-            const result = await generateReportWithGemini(query, inventoryData);
+            const result = await generateAiReport(query, inventoryData, currentUser.username);
 
             if (result.error) {
                 setError(result.error);
             } else if (result.reportData) {
                 setReport(result.reportData);
             } else {
-                setError('A resposta da IA não continha dados de relatório válidos.');
+                setError('A resposta do servidor não continha dados de relatório válidos.');
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            setError('Falha ao processar a resposta da IA.');
+            setError(`Falha ao processar a resposta do servidor de IA: ${e.message}`);
         } finally {
             setIsLoading(false);
         }

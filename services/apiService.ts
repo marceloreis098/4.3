@@ -198,3 +198,12 @@ export const restoreDatabase = (username: string): Promise<{ success: boolean; m
 export const clearDatabase = (username: string): Promise<{ success: boolean; message: string }> => {
     return apiRequest('/database/clear', { method: 'POST', body: JSON.stringify({ username }) });
 };
+
+export const generateAiReport = (query: string, data: Equipment[], username: string): Promise<{ reportData?: Equipment[], error?: string }> => {
+    return apiRequest('/ai/generate-report', {
+        method: 'POST',
+        body: JSON.stringify({ query, data, username })
+    }).catch(err => {
+        return { error: err.message || 'Falha na comunicação com o serviço de IA.' };
+    });
+};

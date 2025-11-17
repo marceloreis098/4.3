@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateReportWithGemini } from '../services/geminiService';
-import { getEquipment } from '../services/apiService';
+import { getEquipment, generateAiReport } from '../services/apiService';
 import { Equipment, User } from '../types';
 import Icon from './common/Icon';
 
@@ -16,7 +15,6 @@ const AIAssistant: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         const loadInventory = async () => {
             setIsDataLoading(true);
             try {
-                // FIX: Pass the currentUser object to the getEquipment function as required by its signature.
                 const data = await getEquipment(currentUser);
                 setInventoryData(data);
             } catch (error) {
@@ -37,18 +35,18 @@ const AIAssistant: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         setError('');
         setReport(null);
         try {
-            const result = await generateReportWithGemini(query, inventoryData);
+            const result = await generateAiReport(query, inventoryData, currentUser.username);
 
             if (result.error) {
                 setError(result.error);
             } else if (result.reportData) {
                 setReport(result.reportData);
             } else {
-                setError('A resposta da IA não continha dados de relatório válidos.');
+                setError('A resposta do servidor não continha dados de relatório válidos.');
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            setError('Falha ao processar a resposta da IA.');
+            setError(`Falha ao processar a resposta do servidor de IA: ${e.message}`);
         } finally {
             setIsLoading(false);
         }
